@@ -48,7 +48,7 @@ def calculateGrade():
             total += result[i]
         print("Your grade is " + str(total) + " ")
         #adds the class into my database
-        db.add_classes(connection, className, listToString(categoryList), listToString(weightList))
+        db.add_weights(connection, listToString(categoryList), listToString(weightList))
         #prints my classes
         classes = db.get_all_classes(connection)
         for aclass in classes:
@@ -59,7 +59,18 @@ def calculateGrade():
         
 
 def loadClass():
-    newClassName = input("What is the new class name")
+    newClassName = input("What is the new class name? ")
+    if searchClass(connection, newClassName) == False:
+        db.create_classes_table(connection)
+        db.add_classes(connection, newClassName)
+        #prints my classes
+    else:
+        print("this class already exists")
+
+classes = db.get_all_classes(connection)
+for aclass in classes:
+    print(aclass) 
+
 
 userquit = False
 while (not userquit):
@@ -72,5 +83,7 @@ while (not userquit):
 
     if command == '1':
         calculateGrade()
-    if command == '5':
+    elif command == '4':
+        loadClass()
+    elif command == '5':
         userquit = True

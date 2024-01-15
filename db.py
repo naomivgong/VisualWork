@@ -8,7 +8,9 @@ CREATE_CLASSES_TABLE = """CREATE TABLE IF NOT EXISTS Classes (
                         weight_list TEXT);
                         """
 
-INSERT_CLASSES = "INSERT INTO Classes (class_name, category_list, weight_list) VALUES (?, ?, ?);"
+INSERT_CLASSES = "INSERT INTO Classes (class_name) VALUES (?);"
+INSERT_WEIGHTS =  "INSERT INTO Classes (category_list, weight_list) VALUES (?, ?);"
+
 
 GET_ALL_CLASSES = "SELECT * FROM Classes"
 GET_CLASSES_BY_NAME = "SELECT * FROM Classes WHERE class_name = ?;"
@@ -25,9 +27,13 @@ def create_classes_table(connection):
     with connection:
         connection.execute(CREATE_CLASSES_TABLE)
 
-def add_classes(connection, class_name, category_list, rating):
+def add_classes(connection, class_name):
     with connection:
-        connection.execute(INSERT_CLASSES, (class_name, category_list, rating))
+        connection.execute(INSERT_CLASSES, (class_name,))
+
+def add_weights(connection, category_list, weight_list):
+    with connection:
+        connection.execute(INSERT_WEIGHTS, (category_list, weight_list))
 
 def get_all_classes(connection):
     with connection:
