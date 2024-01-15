@@ -1,35 +1,56 @@
 import sqlite3
 
-class SQLHandler:
-    
-    def __init__(self, db_path):
-        self.db_path = db_path
-        self.connection = sqlite3.connect(db_path)
-        self.cursor = self.connection.cursor()
-        self.create_tables() 
-
-    def create_tables(self):
-        self.execute_query(""" CREATE TABLE IF NOT EXISTS Classes (
+#This data table is for my classes
+CREATE_CLASSES_TABLE = """CREATE TABLE IF NOT EXISTS Classes (
                         pk TEXT PRIMARY KEY,
                         class_name TEXT, 
                         category_list TEXT,
-                        weight_list TEXT)
+                        weight_list TEXT);
                         """
-                        )
-    #this executes the operation we want on our database
-    def execute_query(self, query, params = None):
-        if params is None:
-            params = ()
-        self.cursor.execute(query, params)
-        self.connection.commit()
 
-    def insert_class(self, class_name, category_list, weight_list):
-        self.execute_query("INSERT INTO Classes (class_name, category_list, weight_list) VALUES (?, ?, ?)", (class_name, category_list, weight_list))
-        return self.cursor.lastrowid
+INSERT_CLASSES = "INSERT INTO Classes (class_name, category_list, weight_list) VALUES (?, ?, ?);"
 
-    def close_connection(self):
-        self.conection.close()
+GET_ALL_CLASSES = "SELECT * FROM Classes"
+GET_CLASSES_BY_NAME = "SELECT * FROM Classes WHERE class_name = ?;"
 
-    def fetch_data(self, query):
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
+REMOVE_DUPLICATE_CLASS = "SELECT DISTINCT class_name from Classes"
+
+#Danger removing entitre table
+DELETE_ENTIRE_TABLE = "DROP TABLE IF EXISTS Classes"
+
+def connect():
+    return sqlite3.connect("VisualWork.db")
+
+def create_classes_table(connection):
+    with connection:
+        connection.execute(CREATE_CLASSES_TABLE)
+
+def add_classes(connection, class_name, category_list, rating):
+    with connection:
+        connection.execute(INSERT_CLASSES, (class_name, category_list, rating))
+
+def get_all_classes(connection):
+    with connection:
+        return connection.execute(GET_ALL_CLASSES).fetchall()
+
+#fetchall gets the entire column of name
+def get_classes_by_name(connection, class_name):
+    with connection:
+       return  connection.execute(GET_CLASSES_BY_NAME, (class_name,)).fetchall()
+    
+def find_class(connection, class_name):
+    with connection:
+        result = connection.execute(GET_CLASSES_BY_NAME, (class_name,)).fetchone()
+        return result is not None
+    
+#removes duplicate classes
+def removes_duplicates(connection):
+    with connection:
+        connection.execute("SELECT DISTINCT class_name from Classes")
+
+def remove_table(connection):
+    with connection:
+        connection.execute(DELETE_ENTIRE_TABLE)
+        connection.execute("VACUUM")
+
+
