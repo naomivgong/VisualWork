@@ -20,11 +20,22 @@ def searchClass(connection, className):
         return True
     return False
 
+def weightTimesCategoryGrade(weightList, gradeInCategory):
+    #multiplies their grade in each category times the weight
+    result = [x * y for x, y in zip(weightList, gradeInCategory)]
+    total = 0
+    for i in range(0, len(result)):
+        total += result[i]
+    return total
 
 def calculateGrade():
     
     className = input("What is the name of the class ")
-    if (searchClass(connection, className) == False):
+    #if the class name  doesnt exists or if it does exist but no weights
+    if (searchClass(connection, className) == True):
+        print("you need to add the class first")
+        loadClass()
+    elif (db.check_if_columns_null(connection, className) == False):
         catNum = int(input("How many weighted categories?: "))
         categoryList = []
         weightList = []
@@ -39,51 +50,71 @@ def calculateGrade():
         #ask the user for their grade in each category
         gradeInCategory = []
         for i in categoryList:
-            gradeInCategory.append(int(input("(Do not put %) What is your grade in " + i + " ")))
+            gradeInCategory.append(float(input("(Do not put %) What is your grade in " + i + " ")))
 
-        #multiplies their grade in each category times the weight
-        result = [x * y for x, y in zip(weightList, gradeInCategory)]
-        total = 0
-        for i in range(0, len(result)):
-            total += result[i]
-        print("Your grade is " + str(total) + " ")
+        total = weightTimesCategoryGrade(weightList, gradeInCategory)
+        print("Your grade is " + total + " ")
         #adds the class into my database
-        db.add_weights(connection, listToString(categoryList), listToString(weightList))
+        db.update_weights(connection, className, listToString(categoryList), listToString(weightList))
         #prints my classes
         classes = db.get_all_classes(connection)
+        print("hi")
         for aclass in classes:
             print(aclass) 
     else:
         #fectch the weight and category of the class name 
-        stringToList()
+        print("The class has been loaded")
+        getWeightResults = db.get_weights(connection, className)
+        listOfCategories, listOfWeight = getWeightResults
+        #converts to current string digit list into a list of ints
+        listOfCategories = stringToList(listOfCategories)
+        listOfWeight = stringToList(listOfWeight)
+        #converts the list of weight to ints
+        listOfWeight =  [float(num) for num in listOfWeight]
+        #ask the user for their input in each category
+        grades = []
+        for category in listOfCategories:
+            categoryGrade = float(input(f"What is your grade in {category} ex. (90)"))
+            grades.append(categoryGrade)
+        total = weightTimesCategoryGrade(listOfWeight, grades)
+        print(f"Your grade is {total}")
+
+
+
         
 
+
+#adds a class into your system
 def loadClass():
     newClassName = input("What is the new class name? ")
-    if searchClass(connection, newClassName) == False:
-        db.create_classes_table(connection)
+    if searchClass(connection, newClassName) == True:
         db.add_classes(connection, newClassName)
-        #prints my classes
     else:
         print("this class already exists")
 
-classes = db.get_all_classes(connection)
-for aclass in classes:
-    print(aclass) 
 
+db.create_classes_table(connection)
 
 userquit = False
 while (not userquit):
+    print("------")
+    classes = db.get_all_classes(connection)
+    for aclass in classes:
+        print(aclass)
+    print("Select Menu")
+    print("-------------------")
     print("calculate grade [1]")
     print("log study session [2]")
     print("predict my score on an exam [3]")
     print("Load a new class [4]")
-    print("Quit[5]")
+    print("View All Classes [5]")
+    print("Quit[6]")
+    print("-------------------")
     command = input("Please enter a command: ")
 
     if command == '1':
         calculateGrade()
     elif command == '4':
         loadClass()
-    elif command == '5':
+    elif command == '6':
         userquit = True
