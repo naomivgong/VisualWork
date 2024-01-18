@@ -86,6 +86,9 @@ def loadClass():
     newClassName = input("What is the new class name? ")
     if searchClass(connection, newClassName) == True:
         db.add_classes(connection, newClassName)
+        #adds a key into the Python Dictionary
+        print(f"new key {newClassName}")
+        studySession[newClassName] = []
     else:
         print("this class already exists")
 
@@ -101,7 +104,7 @@ def logSession():
     while (not classSelected):
         for n, classes in enumerate(classList):
             className = classes[0]
-            tempClassList.append(classes)
+            tempClassList.append(className)
             print(f"{className} [{n+1}]")
         classNameSelected = int(input("Select a class from the list: "))
         #returns the user if the entered an invalid option
@@ -109,6 +112,10 @@ def logSession():
             classSelected = True
         else:
             print("Try Again")
+    classNameSelected = tempClassList[classNameSelected - 1]
+    print('---')
+    print(classNameSelected)
+    print('---')
     print("Enter the duration")
     hours = int(input("How many hours: "))
     minutes = int(input("How many minutes: "))
@@ -118,18 +125,22 @@ def logSession():
     duration = hours * 60 + minutes
 
     #creates a study session object
-    studySession = studySessions(date,className,duration, material, notes)
+    newStudySession = studySessions(date,className,duration, material, notes)
+    studySession[classNameSelected].append(newStudySession)
+    print(studySession)
 
-
+db.remove_table(connection)
 #will create a list of dictionaries
-studySession = []
+studySession = {}
 db.create_classes_table(connection)
 userquit = False
 while (not userquit):
     print("------")
+    '''
     classes = db.get_all_classes(connection)
     for aclass in classes:
         print(aclass)
+    '''
     print("Select Menu")
     print("-------------------")
     print("calculate grade [1]")
@@ -149,3 +160,5 @@ while (not userquit):
         loadClass()
     elif command == '6':
         userquit = True
+    else:
+        print("Please select a valid option")

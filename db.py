@@ -5,7 +5,7 @@ CREATE_CLASSES_TABLE = """CREATE TABLE IF NOT EXISTS Classes (
                         pk TEXT PRIMARY KEY,
                         class_name TEXT, 
                         category_list TEXT,
-                        weight_list TEXT
+                        weight_list TEXT,
                         study_session TEXT);
                         """
 
