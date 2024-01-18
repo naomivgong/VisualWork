@@ -1,4 +1,5 @@
 import db
+from studySessions import studySessions
 
 
 connection = db.connect()
@@ -80,10 +81,6 @@ def calculateGrade():
         print(f"Your grade is {total}")
 
 
-
-        
-
-
 #adds a class into your system
 def loadClass():
     newClassName = input("What is the new class name? ")
@@ -92,9 +89,41 @@ def loadClass():
     else:
         print("this class already exists")
 
+def logSession():
+    date = input("Date (format: June 6, 2022): ")
+    #print out a menu for the class names
+    classList = db.get_all_classes(connection)
+    print("Select class")
+    tempClassList = []
+    #prints out the menu of the classes menu, the menu will continue to be printed
+    #if user doesnt enter valid number
+    classSelected = False
+    while (not classSelected):
+        for n, classes in enumerate(classList):
+            className = classes[0]
+            tempClassList.append(classes)
+            print(f"{className} [{n+1}]")
+        classNameSelected = int(input("Select a class from the list: "))
+        #returns the user if the entered an invalid option
+        if (classNameSelected >= 1 or classNameSelected <= len(tempClassList)):
+            classSelected = True
+        else:
+            print("Try Again")
+    print("Enter the duration")
+    hours = int(input("How many hours: "))
+    minutes = int(input("How many minutes: "))
+    material = input("What did you study for ex. Physics Midterm 1: ")
+    notes = input("Any Notes? (ex. did chapter 5 problems): ")
 
+    duration = hours * 60 + minutes
+
+    #creates a study session object
+    studySession = studySessions(date,className,duration, material, notes)
+
+
+#will create a list of dictionaries
+studySession = []
 db.create_classes_table(connection)
-
 userquit = False
 while (not userquit):
     print("------")
@@ -114,6 +143,8 @@ while (not userquit):
 
     if command == '1':
         calculateGrade()
+    elif command == '2':
+        logSession()
     elif command == '4':
         loadClass()
     elif command == '6':

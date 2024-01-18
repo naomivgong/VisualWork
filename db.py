@@ -5,7 +5,8 @@ CREATE_CLASSES_TABLE = """CREATE TABLE IF NOT EXISTS Classes (
                         pk TEXT PRIMARY KEY,
                         class_name TEXT, 
                         category_list TEXT,
-                        weight_list TEXT);
+                        weight_list TEXT
+                        study_session TEXT);
                         """
 
 INSERT_CLASSES = "INSERT INTO Classes (class_name) VALUES (?);"
@@ -19,7 +20,7 @@ CHECK_IF_NULL = "SELECT weight_list IS NOT NULL, category_list IS NOT NULL FROM 
 
 
 
-GET_ALL_CLASSES = "SELECT * FROM Classes"
+GET_ALL_CLASSES = "SELECT class_name FROM Classes"
 GET_CLASSES_BY_NAME = "SELECT * FROM Classes WHERE class_name = ?;"
 
 REMOVE_DUPLICATE_CLASS = "SELECT DISTINCT class_name from Classes"
