@@ -15,6 +15,9 @@ INSERT_WEIGHTS =  "INSERT INTO Classes (category_list, weight_list) VALUES (?, ?
 #used for if the class is already in the system but not the weights
 INSERT_WEIGHTS_CATEGORY = "UPDATE Classes SET category_list = ?, weight_list = ? WHERE class_name = ?;"
 
+#insert the dictionary of that classes study sessions
+INSERT_STUDYSESSIONS = "UPDATE Classes SET study_session = ? WHERE class_name = ?;"
+
 FIND_VALUE_BY_CONDITION = "SELECT category_list, weight_list FROM Classes WHERE class_name = ?;"
 CHECK_IF_NULL = "SELECT weight_list IS NOT NULL, category_list IS NOT NULL FROM Classes WHERE class_name = ?;"
 
@@ -22,6 +25,7 @@ CHECK_IF_NULL = "SELECT weight_list IS NOT NULL, category_list IS NOT NULL FROM 
 
 GET_ALL_CLASSES = "SELECT class_name FROM Classes"
 GET_CLASSES_BY_NAME = "SELECT * FROM Classes WHERE class_name = ?;"
+GET_ALL_STUDYSESSIONS = "SELECT study_session FROM Classes"
 
 REMOVE_DUPLICATE_CLASS = "SELECT DISTINCT class_name from Classes"
 
@@ -49,6 +53,10 @@ def update_weights(connection, class_name, category_list, weight_list):
     with connection:
         connection.execute(INSERT_WEIGHTS_CATEGORY, (category_list, weight_list, class_name) )
 
+def update_studysession(connection, study_session, class_name):
+    with connection:
+        connection.execute(INSERT_STUDYSESSIONS, (study_session, class_name))
+
 def get_all_classes(connection):
     with connection:
         return connection.execute(GET_ALL_CLASSES).fetchall()
@@ -62,6 +70,11 @@ def get_weights(connection, class_name):
     with connection:
         result = connection.execute(FIND_VALUE_BY_CONDITION, (class_name,)).fetchone()
         return result
+
+def get_all_studysessions(connection):
+    with connection:
+        return connection.execute(GET_ALL_STUDYSESSIONS).fetchall()
+
 
 #finds class name in the data base
 def find_class(connection, class_name):

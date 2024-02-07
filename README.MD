@@ -4,6 +4,8 @@ Calculate Grade Function:
 
 Logging Study Session Function:
 - Using Nested Dictionaries (Hashmap), which would hold all the study sessions for one class
+    - Each class has its own dictionary where the key is the material (Midterm 1)
+    - Each key will have a list of dictionaries for each log
 - Each child node of the root node would be a particular exam you are studying for OR micellaneous (ex. homework)
 - For each session you log, you will input when (date), duration, and what you were studying
 

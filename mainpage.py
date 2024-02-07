@@ -1,25 +1,10 @@
 import db
 from studySessions import studySessions
+import helpers
 
 
 connection = db.connect()
 db.create_classes_table(connection)
-    
-
-#converts a list into a string
-def listToString(list):
-    listToStr = ','.join(map(str, list))
-    return listToStr
-
-#converts a string to a list
-def stringToList(str):
-    strToList = list(str.split(','))
-    return strToList
-
-def searchClass(connection, className):
-    if db.find_class(connection, className):
-        return True
-    return False
 
 def weightTimesCategoryGrade(weightList, gradeInCategory):
     #multiplies their grade in each category times the weight
@@ -56,7 +41,7 @@ def calculateGrade():
         total = weightTimesCategoryGrade(weightList, gradeInCategory)
         print("Your grade is " + total + " ")
         #adds the class into my database
-        db.update_weights(connection, className, listToString(categoryList), listToString(weightList))
+        db.update_weights(connection, className, helpers.listToString(categoryList), helpers.listToString(weightList))
         #prints my classes
         classes = db.get_all_classes(connection)
         print("hi")
@@ -68,8 +53,8 @@ def calculateGrade():
         getWeightResults = db.get_weights(connection, className)
         listOfCategories, listOfWeight = getWeightResults
         #converts to current string digit list into a list of ints
-        listOfCategories = stringToList(listOfCategories)
-        listOfWeight = stringToList(listOfWeight)
+        listOfCategories = helpers.stringToList(listOfCategories)
+        listOfWeight = helpers.stringToList(listOfWeight)
         #converts the list of weight to ints
         listOfWeight =  [float(num) for num in listOfWeight]
         #ask the user for their input in each category
@@ -82,65 +67,44 @@ def calculateGrade():
 
 
 #adds a class into your system
-def loadClass():
+def loadClass(studySession):
     newClassName = input("What is the new class name? ")
     if searchClass(connection, newClassName) == True:
         db.add_classes(connection, newClassName)
         #adds a key into the Python Dictionary
-        print(f"new key {newClassName}")
-        studySession[newClassName] = []
+        formattedClassName = f"'{newClassName}'"
+        print(f"new key {formattedClassName}")
+        studySession[formattedClassName] = []
     else:
         print("this class already exists")
 
-def logSession():
-    date = input("Date (format: June 6, 2022): ")
-    #print out a menu for the class names
-    classList = db.get_all_classes(connection)
-    print("Select class")
-    tempClassList = []
-    #prints out the menu of the classes menu, the menu will continue to be printed
-    #if user doesnt enter valid number
-    classSelected = False
-    while (not classSelected):
-        for n, classes in enumerate(classList):
-            className = classes[0]
-            tempClassList.append(className)
-            print(f"{className} [{n+1}]")
-        classNameSelected = int(input("Select a class from the list: "))
-        #returns the user if the entered an invalid option
-        if (classNameSelected >= 1 or classNameSelected <= len(tempClassList)):
-            classSelected = True
-        else:
-            print("Try Again")
-    classNameSelected = tempClassList[classNameSelected - 1]
-    print('---')
-    print(classNameSelected)
-    print('---')
-    print("Enter the duration")
-    hours = int(input("How many hours: "))
-    minutes = int(input("How many minutes: "))
-    material = input("What did you study for ex. Physics Midterm 1: ")
-    notes = input("Any Notes? (ex. did chapter 5 problems): ")
+def searchClass(connection, className):
+    if db.find_class(connection, className):
+        return True
+    return False
 
-    duration = hours * 60 + minutes
 
-    #creates a study session object
-    newStudySession = studySessions(date,className,duration, material, notes)
-    studySession[classNameSelected].append(newStudySession)
-    print(studySession)
+def viewAllClasses(connection):
+    classes = db.get_all_classes(connection)
+    print("Here is a list of the loaded classes")
+    print("------------------------------------")
+    for aclass in classes:
+        print(str(aclass)[2:-3])
+        print("----------")
 
-db.remove_table(connection)
 #will create a list of dictionaries
 studySession = {}
-db.create_classes_table(connection)
+# Update the study session dictionary
+newStudySession = studySessions.construct_studySession(connection, studySession)
+studySession.update(newStudySession)
 userquit = False
+
 while (not userquit):
     print("------")
-    '''
+    
     classes = db.get_all_classes(connection)
     for aclass in classes:
         print(aclass)
-    '''
     print("Select Menu")
     print("-------------------")
     print("calculate grade [1]")
@@ -148,17 +112,25 @@ while (not userquit):
     print("predict my score on an exam [3]")
     print("Load a new class [4]")
     print("View All Classes [5]")
-    print("Quit[6]")
+    print ("Direct me to Study Sessions[6]")
+    print("Quit[7]")
     print("-------------------")
     command = input("Please enter a command: ")
 
     if command == '1':
-        calculateGrade()
+        helpers.clearTerminal()
+        calculateGrade(connection)
     elif command == '2':
-        logSession()
+        studySessions.logSession(connection)
     elif command == '4':
-        loadClass()
-    elif command == '6':
+        helpers.clearTerminal()
+        input("Press Enter to continue...")
+        loadClass(studySession)
+    elif command == '5':
+        helpers.clearTerminal()
+        viewAllClasses(connection)
+        input("Press Enter to continue...")
+    elif command == '7':
         userquit = True
     else:
         print("Please select a valid option")
